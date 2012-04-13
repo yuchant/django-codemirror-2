@@ -1,3 +1,9 @@
+"""
+CodeMirror 2 Django Widgets
+---------------------------
+
+Created on Thursday, April 2012 by Yuji Tomita
+"""
 import json
 
 from django import forms
@@ -22,8 +28,8 @@ def recursive_update(d, u):
 
 def _create_widget(*args, **kwargs):
     """
-    Dynamically create a Widget class 
-    - Put here due to desire for dynamic Meta class.
+    Dynamically creates a Widget class
+    - Put here due todynamic Meta class.
     """
     extra_css = kwargs.pop('css', {})
     extra_js = kwargs.pop('js', [])
@@ -64,10 +70,11 @@ def _create_widget(*args, **kwargs):
             }
             recursive_update(options, default_options)
             recursive_update(options, self.new_options)
-
+            # myCodeMirror.replaceSelection('foobar');
             output = u'''{html}
             <script type="text/javascript">
                 var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("{id}"), {options});
+                $("#{id}").data('codemirror', myCodeMirror);
             </script> 
             '''.format(
                 id=attrs['id'],
