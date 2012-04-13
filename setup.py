@@ -15,7 +15,6 @@ setup(
     name="django-codemirror-2",
     version=version,
     description = "",
-    long_description=read('README.rst'),
     classifiers = [
         'Framework :: Django',
         'Intended Audience :: Developers',
