@@ -89,3 +89,15 @@ CodeMirrorPythonWidget = _create_widget(
     css=['codemirror/theme/monokai.css'],
     js=['codemirror/mode/python/python.js'],
     )
+
+
+CodeMirrorJSONWidget = _create_widget(
+    options={
+        "mode": {
+            'name': 'javascript',
+            'json': True
+        }
+    },
+    css=['codemirror/theme/monokai.css'],
+    js=['codemirror/mode/javascript/javascript.js'],
+    )
