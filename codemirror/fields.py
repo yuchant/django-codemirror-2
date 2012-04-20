@@ -90,7 +90,8 @@ class YAMLFormField(Field):
             yaml.load(value)
         except ValueError:
             raise FormValidationError(_("Enter valid YAML"))
-        print type(value)
+        except yaml.scanner.ScannerError, e:
+            raise FormValidationError('YAML parse error: {0}'.format(e))
         return value
 
 
