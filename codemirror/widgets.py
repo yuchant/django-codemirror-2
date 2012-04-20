@@ -101,3 +101,59 @@ CodeMirrorJSONWidget = _create_widget(
     css=['codemirror/theme/monokai.css'],
     js=['codemirror/mode/javascript/javascript.js'],
     )
+
+
+
+# custom stateless ajax upload widget
+from django import forms
+from django.utils.safestring import mark_safe
+from django.template.loader import render_to_string
+
+class AJAXUploadWidget(forms.FileInput):
+    def __init__(self, *args, **kwargs):
+        self.codemirror_element = kwargs.pop('codemirror_element', None)
+        self.codemirror_multi_widget = kwargs.pop("codemirror_multi_widget")
+        super(AJAXUploadWidget, self).__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None):
+        html = super(AJAXUploadWidget, self).render(name, value, attrs)
+        output = render_to_string('codemirror/ajax_upload_widget.html', {
+            'input': html,
+            'id': attrs['id'],
+            'codemirror_element': self.codemirror_element,
+            'codemirror_multi_widget': self.codemirror_multi_widget,
+            });
+        return mark_safe(output)
+
+
+"""
+We need:
+1: CodeMirror Widget
+2: AJAX Upload Widget
+3: Combined CodeMirrorAjaxUpload Widget (auto generated from CodeMirror + ajax argument options)
+"""
+
+
+
+class CodeMirrorUploadWidget(forms.MultiWidget):
+    """
+    A Widget that splits datetime input into two <input type="text"> boxes.
+    """
+
+    def __init__(self):
+        self.widgets = [CodeMirrorJSONWidget(), AJAXUploadWidget(codemirror_multi_widget=True)]
+        super(CodeMirrorUploadWidget, self).__init__(self.widgets)
+
+    def decompress(self, value):
+        print 'decompressing', value
+        return [value] # must return list with value for each widget (i think)
+
+    def value_from_datadict(self,data,files,name):
+        """
+        Return single value for form field clean()
+        """
+        val = self.widgets[0].value_from_datadict(data, files, name + '_%s' % '0')
+        return val
+
+    def format_output(self, rendered_widgets):
+        return u''.join(rendered_widgets)
