@@ -34,6 +34,7 @@ def _create_widget(*args, **kwargs):
     extra_css = kwargs.pop('css', {})
     extra_js = kwargs.pop('js', [])
     default_options = kwargs.pop('options', {})
+    extra_styles = kwargs.pop('extra_css_styles', '')
 
     class CodeMirrorWidget(forms.Textarea):
         class Media:
@@ -51,6 +52,8 @@ def _create_widget(*args, **kwargs):
 
         def __init__(self, *args, **kwargs):
             self.new_options = kwargs.pop('options', {})
+            self.extra_css_styles = kwargs.pop('extra_css_styles', '')
+            self.extra_styles = kwargs.pop('extra_css_styles', '')
             super(CodeMirrorWidget, self).__init__(*args, **kwargs)
         
         def render(self, name, value, attrs=None):
@@ -64,22 +67,48 @@ def _create_widget(*args, **kwargs):
                     },
                 'lineNumbers': True,
                 'indentUnit': 4,
-                'tabMode': "shift",
                 'matchBrackets': True,
-                'theme': 'monokai',
+                # 'theme': 'monokai',
+                'lineWrapping': True,
             }
             recursive_update(options, default_options)
             recursive_update(options, self.new_options)
             # myCodeMirror.replaceSelection('foobar');
+            codemirror_reset_styles = '''
+            <style>
+            .CodeMirror pre, .CodeMirror div, .CodeMirror code {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                outline: 0;
+                font-weight: inherit;
+                font-style: inherit;
+                font-size: 13px;
+                line-height:100%;
+                font-family: inherit;
+                vertical-align: baseline;
+            }
+            .CodeMirror {
+                border: 1px solid #eee;
+            }
+            .CodeMirror-scroll {
+                height: auto;
+                overflow-y: hidden;
+                overflow-x: auto;
+                width: 100%;
+            }
+            </style>
+            '''
             output = u'''{html}
             <script type="text/javascript">
                 var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("{id}"), {options});
                 $("#{id}").data('codemirror', myCodeMirror);
-            </script> 
-            '''.format(
+            </script>
+            {styles}'''.format(
                 id=attrs['id'],
                 html=html,
                 options=json.dumps(options),
+                styles=''.join([codemirror_reset_styles, self.extra_css_styles, extra_styles])
                 )
             return mark_safe(output)
     return CodeMirrorWidget
@@ -98,11 +127,39 @@ CodeMirrorJSONWidget = _create_widget(
             'json': True
         }
     },
-    css=['codemirror/theme/monokai.css'],
-    js=['codemirror/mode/javascript/javascript.js'],
+    css=[
+        'codemirror/theme/monokai.css',
+        'codemirror/mode/css/css.css',
+    ],
+    js=[
+        'codemirror/mode/javascript/javascript.js',
+        'codemirror/mode/javascript/css.css',
+        ],
     )
 
-
+CodeMirrorYAMLWidget = _create_widget(
+    options={
+        "mode": {
+            'name': 'yaml',
+        },
+        'indentUnit': 2,
+        'tabSize': 2,
+    },
+    css=[
+        # 'codemirror/theme/monokai.css',
+    ],
+    js=[
+        'codemirror/mode/yaml/yaml.js',
+        'codemirror/lib/util/foldcode.js',
+    ],
+    extra_css_styles='''
+    <style>
+    .CodeMirror .cm-tab {
+       background: #ff8367;
+    }
+    </style>
+    '''    
+    )
 
 # custom stateless ajax upload widget
 from django import forms
@@ -153,6 +210,32 @@ class CodeMirrorUploadWidget(forms.MultiWidget):
         Return single value for form field clean()
         """
         val = self.widgets[0].value_from_datadict(data, files, name + '_%s' % '0')
+        return val
+
+    def format_output(self, rendered_widgets):
+        return u''.join(rendered_widgets)
+
+
+
+class YAMLCodeMirrorAJAXUploadWidget(forms.MultiWidget):
+    """
+    A Widget that splits datetime input into two <input type="text"> boxes.
+    """
+
+    def __init__(self):
+        self.widgets = [CodeMirrorYAMLWidget(), AJAXUploadWidget(codemirror_multi_widget=True)]
+        super(YAMLCodeMirrorAJAXUploadWidget, self).__init__(self.widgets)
+
+    def decompress(self, value):
+        print 'decompressing', value
+        return [value] # must return list with value for each widget (i think)
+
+    def value_from_datadict(self,data,files,name):
+        """
+        Return single value for form field clean()
+        """
+        val = self.widgets[0].value_from_datadict(data, files, name + '_%s' % '0')
+        print val, type(val)
         return val
 
     def format_output(self, rendered_widgets):

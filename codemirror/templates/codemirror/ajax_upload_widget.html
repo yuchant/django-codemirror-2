@@ -215,8 +215,11 @@ $(function() {
                     if(typeof(data.error) != 'undefined') {
                     	
                         {% if codemirror_multi_widget %}
-                            var codemirror = $('#' + $(this)[0].fileElementId.replace('_1', '_0')).data('codemirror');
+                            var codemirror_selector = $('#' + $(this)[0].fileElementId.replace('_1', '_0'));
+                            var codemirror = codemirror_selector.data('codemirror');
+
                             codemirror.replaceSelection(data.path);
+                            codemirror_selector.focus();
                             // codemirror.setValue(codemirror.getValue() + '\n# ' + data.path);
                         {% endif %}
 
