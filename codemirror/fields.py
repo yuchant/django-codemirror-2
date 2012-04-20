@@ -151,6 +151,8 @@ Not coerced to python, then converted to a string.
 
 try:
     from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ["^codemirror\.fields\.JSONCodeMirrorField"])
+    add_introspection_rules([], [
+        "^codemirror\.fields\.JSONCodeMirrorField", 
+        "^codemirror\.fields\.YAMLCodeMirrorField",])
 except:
     pass
