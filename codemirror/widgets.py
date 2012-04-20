@@ -83,7 +83,7 @@ def _create_widget(*args, **kwargs):
                 outline: 0;
                 font-weight: inherit;
                 font-style: inherit;
-                font-size: 13px;
+                font-size: 12px;
                 line-height:100%;
                 font-family: inherit;
                 vertical-align: baseline;
