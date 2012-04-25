@@ -202,7 +202,7 @@ class CodeMirrorUploadWidget(forms.MultiWidget):
         super(CodeMirrorUploadWidget, self).__init__(self.widgets)
 
     def decompress(self, value):
-        print 'decompressing', value
+        # print 'decompressing', value
         return [value] # must return list with value for each widget (i think)
 
     def value_from_datadict(self,data,files,name):
@@ -227,7 +227,7 @@ class YAMLCodeMirrorAJAXUploadWidget(forms.MultiWidget):
         super(YAMLCodeMirrorAJAXUploadWidget, self).__init__(self.widgets)
 
     def decompress(self, value):
-        print 'decompressing', value
+        # print 'decompressing', value
         return [value] # must return list with value for each widget (i think)
 
     def value_from_datadict(self,data,files,name):
@@ -235,7 +235,7 @@ class YAMLCodeMirrorAJAXUploadWidget(forms.MultiWidget):
         Return single value for form field clean()
         """
         val = self.widgets[0].value_from_datadict(data, files, name + '_%s' % '0')
-        print val, type(val)
+        # print val, type(val)
         return val
 
     def format_output(self, rendered_widgets):
