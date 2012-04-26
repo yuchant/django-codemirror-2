@@ -137,13 +137,12 @@ class YAMLCodeMirrorField(models.TextField):
     def contribute_to_class(self, cls, name):
         super(YAMLCodeMirrorField, self).contribute_to_class(cls, name)
         def as_python(self):
-            if not hasattr(self, '_yaml'):            
-                value = getattr(self, name)
-                try:
-                    self._yaml = yaml.load(value)
-                except (ValueError, AttributeError), e:
-                    self._yaml = {}
-            return self._yaml
+            value = getattr(self, name)
+            try:
+                result = yaml.load(value)
+            except (ValueError, AttributeError), e:
+                result = {}
+            return result
         cls.add_to_class('{0}_as_python'.format(name), as_python)
 
 """
