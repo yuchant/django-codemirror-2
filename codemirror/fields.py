@@ -141,6 +141,7 @@ class YAMLCodeMirrorField(models.TextField):
             try:
                 result = yaml.load(value)
             except (ValueError, AttributeError), e:
+                log.debug("YAML to Python failed: {0}".format(e))
                 result = {}
             return result
         cls.add_to_class('{0}_as_python'.format(name), as_python)
