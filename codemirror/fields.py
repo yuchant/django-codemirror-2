@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson as json
@@ -10,6 +12,7 @@ from codemirror.widgets import CodeMirrorJSONWidget
 from codemirror.widgets import CodeMirrorUploadWidget
 from codemirror.widgets import YAMLCodeMirrorAJAXUploadWidget
 
+log = logging.getLogger(__name__)
 
 class JSONFormField(Field):
     # widget = CodeMirrorJSONWidget
@@ -138,9 +141,13 @@ class YAMLCodeMirrorField(models.TextField):
         super(YAMLCodeMirrorField, self).contribute_to_class(cls, name)
         def as_python(self):
             value = getattr(self, name)
+            print "As python called. "
             try:
+                print 'converting to yamll'
                 result = yaml.load(value)
+                print 'converted to yaml'
             except (ValueError, AttributeError), e:
+                print e
                 log.debug("YAML to Python failed: {0}".format(e))
                 result = {}
             return result
